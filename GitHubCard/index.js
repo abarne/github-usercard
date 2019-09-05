@@ -3,6 +3,8 @@
            https://api.github.com/users/<your name>
 */
 
+// Make a request for a user with a given ID
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
@@ -24,7 +26,7 @@
           user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+var followersArray = [];
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
@@ -43,13 +45,85 @@ const followersArray = [];
     <p>Bio: {users bio}</p>
   </div>
 </div>
-
 */
 
-/* List of LS Instructors Github username's: 
-  tetondan
-  dustinmyers
-  justsml
-  luishrd
-  bigknell
-*/
+let cardEntry = document.querySelector('.cards');
+
+function gitCard(obj) {
+	//create componenets
+	let card = document.createElement('div'),
+		newImg = document.createElement('img'),
+		newCardInfo = document.createElement('div'),
+		newHeader = document.createElement('h3'),
+		pUserName = document.createElement('p'),
+		pLocation = document.createElement('p'),
+		pProfile = document.createElement('p'),
+		aAddress = document.createElement('a'),
+		pFollowers = document.createElement('p'),
+		pFollowing = document.createElement('p'),
+		pBio = document.createElement('p');
+
+	//add classes
+	card.classList.add('card');
+	newCardInfo.classList.add('card-info');
+	newHeader.classList.add('name');
+	pUserName.classList.add('username');
+	//	append children
+	card.appendChild(newImg);
+	card.appendChild(newCardInfo);
+	newCardInfo.appendChild(pUserName);
+	newCardInfo.appendChild(pLocation);
+	newCardInfo.appendChild(pProfile);
+	newCardInfo.appendChild(pFollowers);
+	newCardInfo.appendChild(pFollowing);
+	newCardInfo.appendChild(pBio);
+	pProfile.appendChild(aAddress);
+
+	//add content
+	newImg.src = obj.data.avatar_url;
+	newHeader = `Name: ${obj.data.name}`;
+	pUserName.textContent = `Username: ${obj.data.login}`;
+	pLocation.textContent = `Location: ${obj.data.location}`;
+	pProfile.innerHTML = `<a href=${obj.data.html_url}> Profile </a>`;
+	aAddress.href = obj.data.html_url;
+	aAddress.textContent = 'Github Link';
+	pFollowers.textContent = `Followers: ${obj.data.followers}`;
+	pFollowing.textContent = `Following: ${obj.data.following}`;
+	pBio.textContent = `Bio: ${obj.data.bio}`;
+
+	return card;
+}
+
+axios
+	.get('https://api.github.com/users/abarne')
+	.then((response) => {
+		console.log(response);
+		cardEntry.appendChild(gitCard(response));
+	})
+	.catch((error) => {
+		console.log('The data was not returned ', error);
+	});
+
+//followers list
+
+axios
+	.get('https://api.github.com/users/abarne/followers')
+	.then((response) => {
+		console.log(response);
+
+		response.data.map((item) => {
+			console.log(`https://api.github.com/users/${item.login}/followers`);
+			//return item.login;
+			axios
+				.get(`https://api.github.com/users/${item.login}`)
+				.then((response) => {
+					cardEntry.appendChild(gitCard(response));
+				})
+				.catch((error) => {
+					console.log('the data was not returned, ', error);
+				});
+		});
+	})
+	.catch((error) => {
+		console.log('The data was not returned ', error);
+	});
