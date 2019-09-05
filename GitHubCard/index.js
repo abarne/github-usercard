@@ -94,6 +94,7 @@ function gitCard(obj) {
 	return card;
 }
 
+//create card for my own github info
 axios
 	.get('https://api.github.com/users/abarne')
 	.then((response) => {
@@ -111,9 +112,8 @@ axios
 	.then((response) => {
 		console.log(response);
 
+		//go through each follower and create their cards
 		response.data.map((item) => {
-			console.log(`https://api.github.com/users/${item.login}/followers`);
-			//return item.login;
 			axios
 				.get(`https://api.github.com/users/${item.login}`)
 				.then((response) => {
